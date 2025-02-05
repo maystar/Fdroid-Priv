@@ -1,0 +1,27 @@
+name: Release to ZIP
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  zip-release-files:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Create ZIP archive
+        run: |
+          REPO_NAME=$(basename $GITHUB_REPOSITORY)
+          VERSION=$(echo $GITHUB_REF | sed 's/refs\/tags\///')
+          
+          zip -r "${REPO_NAME}-${VERSION}.zip" ./*
+
+      - name: Upload ZIP as release asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: "${REPO_NAME}-${VERSION}.zip"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
